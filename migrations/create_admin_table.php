@@ -1,0 +1,23 @@
+<?php
+
+require_once '../my-orm/orm/Schema.php';
+require_once '../my-orm/orm/Structure.php';
+
+class Create_admin_table
+{
+    public function up()
+    {
+        Schema::create('admins', function (Structure $table) {
+            $table->id();
+            $table->string('name');
+            $table->integer('age')->nullable();
+            $table->created_at();
+            $table->updated_at();
+        });
+    }
+
+    public function down()
+    {
+        Schema::drop('admins');
+    }
+}
