@@ -1,6 +1,9 @@
 <?php
 
-require_once 'ColumnDefinition.php';
+namespace Szymo\MyOrm\Schema;
+
+use Szymo\MyOrm\Database\DB;
+
 
 class Structure
 {

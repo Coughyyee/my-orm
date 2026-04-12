@@ -1,6 +1,10 @@
 <?php
 
-require_once 'WhereClause.php';
+namespace Szymo\MyOrm\Query;
+
+use Exception;
+use PDO;
+use Szymo\MyOrm\Database\DB;
 
 class QueryBuilder
 {
@@ -36,40 +40,47 @@ class QueryBuilder
     /**
      * retrieves the first element from the condition. Must be appended after a conditional like where(...).
      * @throws Exception will throw if where clause not specified beforehand.
-     * @return array<string, mixed>|false PDO::FETCH_ASSOC of the first row selected or false if none returned.
+     * @return array<string, mixed>|null PDO::FETCH_ASSOC of the first row selected or null if none returned.
      */
-    public function first(): array|false
+    public function first(): array|null
     {
-        $sql = "SELECT TOP 1 * FROM `{$this->table}`";
-
-        // ensure that there is a where clause. 
+        // Prevent dangerous queries (no WHERE clause)
         if (empty($this->wheres)) {
             throw new Exception("Refusing to select without a WHERE clause.");
         }
 
+        // Start base query
+        $sql = "SELECT * FROM `{$this->table}`";
+
+        // Build WHERE conditions
         $conditions = [];
 
         foreach ($this->wheres as $where) {
             $conditions[] = "`{$where->column}` {$where->operator} :{$where->column}";
         }
 
-        // only add WHERE if conditions exist.
-        if (!empty($conditions)) {
-            $sql .= " WHERE " . implode(" AND ", $conditions);
-        }
+        // Append WHERE clause
+        $sql .= " WHERE " . implode(" AND ", $conditions);
 
+        // Limit to one result (MySQL syntax)
+        $sql .= " LIMIT 1";
+
+        // Prepare statement
         $stmt = DB::$db->prepare($sql);
 
-        // bind values to placeholders.
+        // Bind values safely
         foreach ($this->wheres as $where) {
             $stmt->bindValue(':' . $where->column, $where->value);
         }
 
-        // execute query.
+        // Execute query
         $stmt->execute();
 
-        // fetch and return
-        return $stmt->fetch(PDO::FETCH_ASSOC);
+        // Fetch result
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        // Return null instead of false (cleaner API)
+        return $result === false ? null : $result;
     }
 
     /**
@@ -79,34 +90,33 @@ class QueryBuilder
      */
     public function delete(): void
     {
-        $sql = "DELETE FROM `{$this->table}`";
-
-        // ensure that there is a where clause. Will result in deleting everything.
-        // FUTURE: add a parameter that user can specify if they want to delete all or not (could be dangerous).
+        // Prevent dangerous full-table deletes
         if (empty($this->wheres)) {
             throw new Exception("Refusing to delete without a WHERE clause.");
         }
 
+        // Start base query
+        $sql = "DELETE FROM `{$this->table}`";
+
+        // Build WHERE conditions
         $conditions = [];
-        // loop over stored conditions.
+
         foreach ($this->wheres as $where) {
-            // ex: `id` = 1
             $conditions[] = "`{$where->column}` {$where->operator} :{$where->column}";
         }
 
-        // only add WHERE if conditions exist.
-        if (!empty($conditions)) {
-            $sql .= " WHERE " . implode(" AND ", $conditions);
-        }
+        // Append WHERE clause (safe because we already checked wheres)
+        $sql .= " WHERE " . implode(" AND ", $conditions);
 
+        // Prepare statement
         $stmt = DB::$db->prepare($sql);
 
-        // bind values to placeholders.
+        // Bind values
         foreach ($this->wheres as $where) {
             $stmt->bindValue(':' . $where->column, $where->value);
         }
 
-        // execute query.
+        // Execute query
         $stmt->execute();
     }
 }

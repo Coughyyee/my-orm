@@ -1,0 +1,16 @@
+{
+    "name": "szymo/my-orm",
+    "description": "This is my custom ORM project.",
+    "autoload": {
+        "psr-4": {
+            "Szymo\\MyOrm\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Coughyyee",
+            "email": "szymon.osipowicz15@gmail.com"
+        }
+    ],
+    "require": {}
+}

@@ -1,6 +1,13 @@
 <?php
 
-require_once 'QueryBuilder.php';
+namespace Szymo\MyOrm\Model;
+
+use Exception;
+use PDO;
+use ReflectionObject;
+use ReflectionProperty;
+use Szymo\MyOrm\Database\DB;
+use Szymo\MyOrm\Query\QueryBuilder;
 
 class Model
 {

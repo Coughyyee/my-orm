@@ -1,5 +1,10 @@
 <?php
 
+namespace Szymo\MyOrm\Database;
+
+use PDO;
+use PDOException;
+
 class DB
 {
     // private database connection variables.

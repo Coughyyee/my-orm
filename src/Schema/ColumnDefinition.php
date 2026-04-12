@@ -1,5 +1,7 @@
 <?php
 
+namespace Szymo\MyOrm\Schema;
+
 class ColumnDefinition
 {
     /**

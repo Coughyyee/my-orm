@@ -1,6 +1,9 @@
 <?php
 
-require_once 'Structure.php';
+namespace Szymo\MyOrm\Schema;
+
+use Szymo\MyOrm\Database\DB;
+use Szymo\MyOrm\Schema\Structure;
 
 class Schema
 {

@@ -1,5 +1,7 @@
 <?php
 
+namespace Szymo\MyOrm\Query;
+
 /**
  * Helper class for storing the where conditions for QueryBuilder
  */
