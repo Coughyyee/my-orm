@@ -55,8 +55,11 @@ class QueryBuilder
         // Build WHERE conditions
         $conditions = [];
 
-        foreach ($this->wheres as $where) {
-            $conditions[] = "`{$where->column}` {$where->operator} :{$where->column}";
+        foreach ($this->wheres as $index => $where) {
+            // ensure chaining same paramenters works
+            $param = "{$where->column}_{$index}";
+
+            $conditions[] = "`{$where->column}` {$where->operator} :{$param}";
         }
 
         // Append WHERE clause
@@ -69,8 +72,11 @@ class QueryBuilder
         $stmt = DB::$db->prepare($sql);
 
         // Bind values safely
-        foreach ($this->wheres as $where) {
-            $stmt->bindValue(':' . $where->column, $where->value);
+        foreach ($this->wheres as $index => $where) {
+            // ensure chaining same paramenters works
+            $param = "{$where->column}_{$index}";
+
+            $stmt->bindValue(':' . $param, $where->value);
         }
 
         // Execute query
@@ -101,8 +107,11 @@ class QueryBuilder
         // Build WHERE conditions
         $conditions = [];
 
-        foreach ($this->wheres as $where) {
-            $conditions[] = "`{$where->column}` {$where->operator} :{$where->column}";
+        foreach ($this->wheres as $index => $where) {
+            // ensure chaining same paramenters works
+            $param = "{$where->column}_{$index}";
+
+            $conditions[] = "`{$where->column}` {$where->operator} :{$param}";
         }
 
         // Append WHERE clause (safe because we already checked wheres)
@@ -112,8 +121,11 @@ class QueryBuilder
         $stmt = DB::$db->prepare($sql);
 
         // Bind values
-        foreach ($this->wheres as $where) {
-            $stmt->bindValue(':' . $where->column, $where->value);
+        foreach ($this->wheres as $index => $where) {
+            // ensure chaining same paramenters works
+            $param = "{$where->column}_{$index}";
+
+            $stmt->bindValue(':' . $param, $where->value);
         }
 
         // Execute query
