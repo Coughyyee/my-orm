@@ -1,7 +1,7 @@
 <?php
 
-require_once '../my-orm/orm/Schema.php';
-require_once '../my-orm/orm/Structure.php';
+require_once '../my-orm/orm/migration/Schema.php';
+require_once '../my-orm/orm/migration/Structure.php';
 
 class Create_admin_table
 {

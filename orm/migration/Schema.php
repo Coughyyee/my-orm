@@ -6,12 +6,12 @@ class Schema
 {
 
     /**
-     * Summary of create
-     * @param string $tbl_name
-     * @param callable $fn (Structure) : void
+     * Creates a new table migration.
+     * @param string $tbl_name name of the table to be created.
+     * @param callable(Structure): void $fn Function that will be called to append all the column and column definitions for the new table.
      * @return void
      */
-    public static function create(string $tbl_name, callable $fn)
+    public static function create(string $tbl_name, callable $fn): void
     {
         $structure = new Structure($tbl_name);
 
@@ -21,9 +21,6 @@ class Schema
         $columns_sql = [];
 
         // loop over the structures columns defined
-        /**
-         * @var ColumnDefinition $col
-         */
         foreach ($structure->getColumns() as $col) {
             $sql = "`{$col->name}` {$col->type}";
 
@@ -43,7 +40,12 @@ class Schema
         DB::$db->exec($sql);
     }
 
-    public static function drop(string $table_name)
+    /**
+     * Drop function to drop table.
+     * @param string $table_name table name.
+     * @return void
+     */
+    public static function drop(string $table_name): void
     {
         Structure::dropIfExists($table_name);
     }
