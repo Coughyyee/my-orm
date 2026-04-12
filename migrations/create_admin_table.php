@@ -1,7 +1,7 @@
 <?php
 
-require_once '../my-orm/orm/migration/Schema.php';
-require_once '../my-orm/orm/migration/Structure.php';
+use Szymo\MyOrm\Schema\Schema;
+use Szymo\MyOrm\Schema\Structure;
 
 class Create_admin_table
 {
@@ -11,6 +11,7 @@ class Create_admin_table
             $table->id();
             $table->string('name');
             $table->integer('age')->nullable();
+            $table->string('email')->unique();
             $table->created_at();
             $table->updated_at();
         });

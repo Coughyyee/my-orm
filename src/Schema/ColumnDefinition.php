@@ -19,6 +19,11 @@ class ColumnDefinition
      */
     public bool $nullable = false;
 
+    /**
+     * @var bool [optional - default 'false'] unique attribute.
+     */
+    public bool $unique = false;
+
     public function __construct(string $name, string $type)
     {
         $this->name = $name;
@@ -32,6 +37,16 @@ class ColumnDefinition
     public function nullable(): self
     {
         $this->nullable = true;
+        return $this;
+    }
+
+    /**
+     * Makes the current column include a unique constriant.
+     * @return ColumnDefinition allows for chaining.
+     */
+    public function unique(): self
+    {
+        $this->unique = true;
         return $this;
     }
 }

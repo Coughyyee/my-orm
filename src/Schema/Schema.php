@@ -32,6 +32,11 @@ class Schema
                 $sql .= " NOT NULL";
             }
 
+            // append unique
+            if ($col->unique) {
+                $sql .= " UNIQUE";
+            }
+
             // append to array
             $columns_sql[] = $sql;
         }
