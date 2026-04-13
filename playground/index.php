@@ -9,32 +9,24 @@ new DB();
 
 class User extends Model
 {
+    // TODO: add a custom field that allows developers to specify a different table name so it doesnt always have to match the class name? Something like: protected string $table = 'user_table';
     public string $name;
     public int $age;
     public string $title;
 }
 
-// creating user
-$obj = new User();
-$obj->name = 'Emma';
-$obj->age = 100;
-$obj->title = 'mrs';
-// $obj->create();
+// $user = User::where('id', 1)->first();
 
-// fetching users
-$all = User::all();
-// fetching specific user
-$specific = User::where('id', 1)->first();
-// deleting user
-// User::where('id', 1)->delete();
+// echo '<pre>';
+// var_dump($user);
+// echo '</pre>';
+
+$result = User::all();
 
 echo '<pre>';
-// var_dump($all);
+var_dump($result);
 echo '</pre>';
 
-echo '<pre>';
-var_dump($specific);
-echo '</pre>';
 
 // run once!
 // require_once '../migrations/create_admin_table.php';

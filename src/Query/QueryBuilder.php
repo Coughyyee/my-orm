@@ -6,6 +6,9 @@ use Exception;
 use PDO;
 use Szymo\MyOrm\Database\DB;
 
+/**
+ * @template TModel Used for getting the model class that methods were called from.
+ */
 class QueryBuilder
 {
     /**
@@ -14,13 +17,19 @@ class QueryBuilder
     protected string $table;
 
     /**
+     * @var class-string<TModel> represents the class of type TModel
+     */
+    protected string $modelClass;
+
+    /**
      * @var WhereClause[] Where conditions
      */
     protected array $wheres = [];
 
-    public function __construct(string $table)
+    public function __construct(string $modelClass)
     {
-        $this->table = $table;
+        $this->table = $modelClass;
+        $this->modelClass = $modelClass;
     }
 
     /**
@@ -40,9 +49,9 @@ class QueryBuilder
     /**
      * retrieves the first element from the condition. Must be appended after a conditional like where(...).
      * @throws Exception will throw if where clause not specified beforehand.
-     * @return array<string, mixed>|null PDO::FETCH_ASSOC of the first row selected or null if none returned.
+     * @return TModel|null Returns the object of type whatever TModel is (whatever the Model was used to be called from) with the correct data filled in or null if nothing returned.
      */
-    public function first(): array|null
+    public function first(): object|null
     {
         // Prevent dangerous queries (no WHERE clause)
         if (empty($this->wheres)) {
@@ -85,8 +94,21 @@ class QueryBuilder
         // Fetch result
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        // Return null instead of false (cleaner API)
-        return $result === false ? null : $result;
+        if ($result === false)
+            return null;
+
+        // create model instance
+        $modelClass = $this->modelClass;
+        $model = new $modelClass();
+
+        // loop over the result array and map values to the new model.
+        foreach ($result as $key => $value) {
+            if (property_exists($model, $key)) {
+                $model->$key = $value;
+            }
+        }
+
+        return $model;
     }
 
     /**

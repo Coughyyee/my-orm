@@ -12,6 +12,12 @@ use Szymo\MyOrm\Query\QueryBuilder;
 class Model
 {
     /**
+     * @var int|null Each model will have an id column, the developer doesn not need to define it inside of their model class as it is defined here in the parent.
+     */
+    public ?int $id = null;
+
+
+    /**
      * Inserts new row into the database table corrisponding with the name of the model subclass.
      * @throws Exception If a property is uninisialised (except if is defined as nullable).
      * @return void 
@@ -78,7 +84,7 @@ class Model
      * @param string $col name of the column.
      * @param mixed $value the value for the condition to check.
      * @param string $operator [optional - default '='] custom operator for condition ex. '>', '<', '=' etc.
-     * @return QueryBuilder Allows for function chaining - manditory.
+     * @return QueryBuilder<static> `Query builder is tied to calling Model.` Also allows for function chaining - manditory.
      */
     public static function where(string $col, mixed $value, string $operator = '='): QueryBuilder
     {
