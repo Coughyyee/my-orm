@@ -1,5 +1,7 @@
 <?php
 
+// TEST MIGRATION
+
 use Szymo\MyOrm\Schema\Schema;
 use Szymo\MyOrm\Schema\Structure;
 

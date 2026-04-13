@@ -6,8 +6,6 @@ In this document i will discuss everything to do with models inside of my ORM.
 
 To define a model, you create a class and extend it with the Model class. This will turn your class into a model.
 
-> <font color='red'>**Make sure to name your model class the same name as your <ins>corrisponding database table</ins>.**</font>
-
 Within your model class you will need to define all the properties that reflect the columns of the database table. You can exclude id as it is automatically gathered through the Model parent class.
 
 Properties must be public. This ensures the Model can access them correctly and allow for operations on the class properties. Any other type of modifier, ex. static or private, will be ignored by the Model class.
@@ -18,7 +16,7 @@ Properties can also be defined as nullable by prefixing the type of the property
 
 Your model reflects the structure of your database table you are utilising the model for. This means you should define all properties inside of the model class just like your columns are inside of your database. This means the correct amount and correct names.
 
-The model class name is the same name that will be called to find the database table. This means if your model is defined as `User` then any operations will be done on the `user` table.
+The model class name is the same name that will be called to find the database table. This means if your model is defined as `User` then any operations will be done on the `user` table. This can be changed by defining an extra property inside your model class of: `protected static ?string $table = '...'` where you can define a custom table name which will be used for the queries instead.
 
 To create a row and insert it into your table, first create the object and define its properties. For example a simple User model would look like this:
 

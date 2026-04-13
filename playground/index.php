@@ -1,5 +1,7 @@
 <?php
 
+// TEST PLAYGROUND
+
 require __DIR__ . '/../vendor/autoload.php';
 
 use Szymo\MyOrm\Database\DB;
@@ -9,7 +11,8 @@ new DB();
 
 class User extends Model
 {
-    // TODO: add a custom field that allows developers to specify a different table name so it doesnt always have to match the class name? Something like: protected string $table = 'user_table';
+    protected static ?string $table = 'users'; // optional
+
     public string $name;
     public int $age;
     public string $title;

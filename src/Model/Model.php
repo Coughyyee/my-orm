@@ -12,19 +12,26 @@ use Szymo\MyOrm\Query\QueryBuilder;
 class Model
 {
     /**
-     * @var int|null Each model will have an id column, the developer doesn not need to define it inside of their model class as it is defined here in the parent.
+     * @var int|null $id Each model will have an id column, the developer doesn not need to define it inside of their model class as it is defined here in the parent.
      */
     public ?int $id = null;
 
+    /**
+     * @var string|null $table Optional property - developer can define custom name for their table. If left null the class name will be used as the table name for queries.
+     */
+    protected static ?string $table = null;
+
 
     /**
-     * Inserts new row into the database table corrisponding with the name of the model subclass.
+     * Inserts new row into the database table.
      * @throws Exception If a property is uninisialised (except if is defined as nullable).
      * @return void 
      */
     public function create()
-    { // get string class name of model child class -> will be used as the database table name. 
-        $class = get_class($this);
+    {
+        // table becomes either the user defined table name or the model classes class name.
+        $table = static::$table ?? strtolower(get_class($this));
+
         // Inspect the current object at runtime. 
         $reflection = new ReflectionObject($this);
         // get all public properites. 
@@ -53,7 +60,7 @@ class Model
                 }
 
                 // throw error as property hasnt been initialised. 
-                throw new Exception("[$class] Property '$name' must be initialised before calling create() method.");
+                throw new Exception("[$table] Property '$name' must be initialised before calling create() method.");
             }
 
             $value = $prop->getValue($this);
@@ -65,7 +72,7 @@ class Model
         }
 
         // build sql query. 
-        $sql = "INSERT INTO $class (" . implode(', ', $columns) . ") VALUES (" . implode(', ', $placeholders) . ")";
+        $sql = "INSERT INTO $table (" . implode(', ', $columns) . ") VALUES (" . implode(', ', $placeholders) . ")";
 
         // prepare sql query 
         $stmt = DB::$db->prepare($sql);
@@ -88,24 +95,24 @@ class Model
      */
     public static function where(string $col, mixed $value, string $operator = '='): QueryBuilder
     {
-        // get string class name of model child class -> will be used as the database table name.
-        $class = static::class;
+        // table becomes either the user defined table name or the model classes class name.
+        $table = static::$table ?? strtolower(static::class);
 
-        $builder = new QueryBuilder($class);
+        $builder = new QueryBuilder($table);
         return $builder->where($col, $value, $operator);
     }
 
     /**
-     * Returns all rows from table corrisponding with the class name of model subclass.
+     * Returns all rows from table.
      * @return array<int, array<string, mixed>> PDO::FETCH_ASSOC used to return all data. 
      */
     public static function all(): array
     {
-        // get string class name of model child class -> will be used as the database table name.
-        $class = static::class;
+        // table becomes either the user defined table name or the model classes class name.
+        $table = static::$table ?? strtolower(static::class);
 
         // sql query.
-        $sql = "SELECT * FROM $class";
+        $sql = "SELECT * FROM $table";
 
         // prepare and execute query.
         $stmt = DB::$db->prepare($sql);
