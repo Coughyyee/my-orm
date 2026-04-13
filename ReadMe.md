@@ -8,44 +8,12 @@ I've been using Laravel for a while and really enjoyed working with its ORM. I w
 
 This project helped me learn more about:
 
-* PHP OOP
-* Advanced PHP concepts
-* Database interaction with PDO
-* Designing clean, chainable APIs
-
-## Example Usage
-
-### Model
-
-```php
-class User extends Model {}
-
-$user = new User();
-$user->name = "John";
-$user->age = 25;
-$user->create();
-```
-
-### Migration
-
-```php
-Schema::create('users', function (Structure $table) {
-    $table->id();
-    $table->string('name')->nullable();
-    $table->integer('age');
-});
-```
+- PHP OOP
+- Advanced PHP concepts
+- Database interaction with PDO
+- Designing clean, chainable APIs
 
 ## Notes
 
-* This is a learning project, not production-ready yet...
-* No query builder yet
-* Limited validation and error handling
-
-## Future Plans
-
-* Query builder
-* Relationships (hasMany, belongsTo)
-* More schema features (indexes, defaults, etc.)
-* Better structure and separation of concerns
-
+- This is a learning project, not production-ready yet...
+- Documentation on specific features is located inside of the `/docs` folder.
