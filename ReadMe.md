@@ -16,4 +16,5 @@ This project helped me learn more about:
 ## Notes
 
 - This is a learning project, not production-ready yet...
+- Moving forwards with this project type saftey has become a high priority. This ORM should give developers a smooth and detailed experience with types.
 - Documentation on specific features is located inside of the `/docs` folder.

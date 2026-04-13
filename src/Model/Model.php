@@ -98,15 +98,15 @@ class Model
         // table becomes either the user defined table name or the model classes class name.
         $table = static::$table ?? strtolower(static::class);
 
-        $builder = new QueryBuilder($table);
+        $builder = new QueryBuilder($table, static::class);
         return $builder->where($col, $value, $operator);
     }
 
     /**
-     * Returns all rows from table.
-     * @return array<int, array<string, mixed>> PDO::FETCH_ASSOC used to return all data. 
+     * Return all data from database table.
+     * @return array<static>|null Returns an array of the model class objects or null if nothing.
      */
-    public static function all(): array
+    public static function all(): array|null
     {
         // table becomes either the user defined table name or the model classes class name.
         $table = static::$table ?? strtolower(static::class);
@@ -118,7 +118,63 @@ class Model
         $stmt = DB::$db->prepare($sql);
         $stmt->execute();
 
-        // fetch all and return the array returned.
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        if ($result === [])
+            return null;
+
+        // create model instance
+        $modelClass = static::class;
+
+        $modelArray = [];
+
+        foreach ($result as $index => $row) {
+            $model = new $modelClass();
+
+            foreach ($row as $key => $value) {
+                if (property_exists($model, $key)) {
+                    $model->$key = $value;
+                }
+            }
+
+            $modelArray[] = $model;
+        }
+
+        return $modelArray;
+    }
+
+    /**
+     * Shorthand function for finding a row by its unique primary id.
+     * @param int $id Unique identifier for row.
+     * @return static|null Model object type or null if nothing found.
+     */
+    public static function find(int $id): object|null
+    {
+        // table becomes either the user defined table name or the model classes class name.
+        $table = static::$table ?? strtolower(static::class);
+
+        // sql query.
+        $sql = "SELECT * FROM $table WHERE id = :id";
+
+        // prepare and execute query.
+        $stmt = DB::$db->prepare($sql);
+        $stmt->bindParam(':id', $id);
+        $stmt->execute();
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($result === false)
+            return null;
+
+        $modelClass = static::class;
+        $model = new $modelClass();
+
+        // loop over the result array and map values to the new model.
+        foreach ($result as $key => $value) {
+            if (property_exists($model, $key)) {
+                $model->$key = $value;
+            }
+        }
+
+        return $model;
     }
 }

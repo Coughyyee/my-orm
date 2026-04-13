@@ -12,24 +12,17 @@ use Szymo\MyOrm\Database\DB;
 class QueryBuilder
 {
     /**
-     * @var string Table name.
-     */
-    protected string $table;
-
-    /**
-     * @var class-string<TModel> represents the class of type TModel
-     */
-    protected string $modelClass;
-
-    /**
      * @var WhereClause[] Where conditions
      */
     protected array $wheres = [];
 
-    public function __construct(string $modelClass)
+    /**
+     * QueryBuilder constructor method.
+     * @param string $table Database table name.
+     * @param class-string<TModel> $modelClass Class reference string.
+     */
+    public function __construct(protected string $table, protected string $modelClass)
     {
-        $this->table = $modelClass;
-        $this->modelClass = $modelClass;
     }
 
     /**
@@ -47,11 +40,11 @@ class QueryBuilder
     }
 
     /**
-     * retrieves the first element from the condition. Must be appended after a conditional like where(...).
-     * @throws Exception will throw if where clause not specified beforehand.
-     * @return TModel|null Returns the object of type whatever TModel is (whatever the Model was used to be called from) with the correct data filled in or null if nothing returned.
+     * Returns all rows mapped to TModel type. Needs a where() before.
+     * @throws Exception 
+     * @return TModel[]|null array of mapped models or null if nothing found.
      */
-    public function first(): object|null
+    public function all(): array|null
     {
         // Prevent dangerous queries (no WHERE clause)
         if (empty($this->wheres)) {
@@ -74,8 +67,85 @@ class QueryBuilder
         // Append WHERE clause
         $sql .= " WHERE " . implode(" AND ", $conditions);
 
-        // Limit to one result (MySQL syntax)
-        $sql .= " LIMIT 1";
+        // Prepare statement
+        $stmt = DB::$db->prepare($sql);
+
+        // Bind values safely
+        foreach ($this->wheres as $index => $where) {
+            // ensure chaining same paramenters works
+            $param = "{$where->column}_{$index}";
+
+            $stmt->bindValue(':' . $param, $where->value);
+        }
+
+        // Execute query
+        $stmt->execute();
+
+        // PDO result
+        $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        if ($result === [])
+            return null;
+
+        // create model instance
+        $modelClass = $this->modelClass;
+
+        /**
+         * @var array<TModel>
+         */
+        $modelArray = [];
+
+        foreach ($result as $index => $row) {
+            $model = new $modelClass();
+
+            foreach ($row as $key => $value) {
+                if (property_exists($model, $key)) {
+                    $model->$key = $value;
+                }
+            }
+
+            $modelArray[] = $model;
+        }
+
+        return $modelArray;
+    }
+
+    /**
+     * retrieves the first element from the condition. Must be appended after a conditional like where(...).
+     * @param int $limit [optional - default '1'] The limit on how many results. Default is set to 1 - getting the first result.
+     * @throws Exception 
+     * @return TModel|TModel[]|null Returns the object of type whatever TModel is (whatever the Model was used to be called from) with the correct data filled in, an array of multiple TModels if a limit of more than 1 was specified or null if nothing was returned.
+     */
+    public function first(int $limit = 1): object|array|null
+    {
+        // Prevent dangerous queries (no WHERE clause)
+        if (empty($this->wheres)) {
+            throw new Exception("Refusing to select without a WHERE clause.");
+        }
+
+        // Ensure $limit is at least one.
+        if ($limit < 1) {
+            throw new Exception('$limit parameter must be at least 1.');
+        }
+
+        // Start base query
+        $sql = "SELECT * FROM `{$this->table}`";
+
+        // Build WHERE conditions
+        $conditions = [];
+
+        foreach ($this->wheres as $index => $where) {
+            // ensure chaining same paramenters works
+            $param = "{$where->column}_{$index}";
+
+            $conditions[] = "`{$where->column}` {$where->operator} :{$param}";
+        }
+
+        // Append WHERE clause
+        $sql .= " WHERE " . implode(" AND ", $conditions);
+
+        // Limit to x amount of results (MySQL syntax)
+        $sql .= " LIMIT $limit";
 
         // Prepare statement
         $stmt = DB::$db->prepare($sql);
@@ -92,23 +162,38 @@ class QueryBuilder
         $stmt->execute();
 
         // Fetch result
-        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        if ($result === false)
+        if ($result === [])
             return null;
 
         // create model instance
         $modelClass = $this->modelClass;
-        $model = new $modelClass();
 
-        // loop over the result array and map values to the new model.
-        foreach ($result as $key => $value) {
-            if (property_exists($model, $key)) {
-                $model->$key = $value;
+        /**
+         * @var array<TModel>
+         */
+        $modelArray = [];
+
+        foreach ($result as $index => $row) {
+            $model = new $modelClass();
+
+            foreach ($row as $key => $value) {
+                if (property_exists($model, $key)) {
+                    $model->$key = $value;
+                }
             }
+
+            // if $limit is set to 1 aka only one result object should be returned.
+            if ($limit === 1) {
+                return $model;
+            }
+
+            // append model to models array.
+            $modelArray[] = $model;
         }
 
-        return $model;
+        return $modelArray;
     }
 
     /**

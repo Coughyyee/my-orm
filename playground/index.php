@@ -18,17 +18,25 @@ class User extends Model
     public string $title;
 }
 
-// $user = User::where('id', 1)->first();
+$result = User::where('id', 2, '>=')->first(2);
+$r = User::find(1);
+
+$result = User::all();
 
 // echo '<pre>';
 // var_dump($user);
 // echo '</pre>';
 
-$result = User::all();
+// $result = User::all();
+$result = User::where('name', 'a')->all();
 
 echo '<pre>';
 var_dump($result);
 echo '</pre>';
+
+// foreach ($result as $user) {
+//     echo $user->id . '<br>';
+// }
 
 
 // run once!
