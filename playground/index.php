@@ -7,11 +7,11 @@ require __DIR__ . '/../vendor/autoload.php';
 use Szymo\MyOrm\Database\DB;
 use Szymo\MyOrm\Model\Model;
 
-new DB();
+new DB(); // bootstrap database
 
 class User extends Model
 {
-    protected static ?string $table = 'users'; // optional
+    protected static string $table = 'users'; // optional
 
     public string $name;
     public int $age;

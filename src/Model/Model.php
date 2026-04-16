@@ -17,9 +17,9 @@ class Model
     public ?int $id = null;
 
     /**
-     * @var string|null $table Optional property - developer can define custom name for their table. If left null the class name will be used as the table name for queries.
+     * @var string $table Optional property - developer can define custom name for their table. If left empty the class name will be used as the table name for queries.
      */
-    protected static ?string $table = null;
+    protected static string $table = '';
 
 
     /**
@@ -30,7 +30,7 @@ class Model
     public function create()
     {
         // table becomes either the user defined table name or the model classes class name.
-        $table = static::$table ?? strtolower(get_class($this));
+        $table = static::$table !== '' ? static::$table : strtolower(get_class($this));
 
         // Inspect the current object at runtime. 
         $reflection = new ReflectionObject($this);
@@ -96,7 +96,7 @@ class Model
     public static function where(string $col, mixed $value, string $operator = '='): QueryBuilder
     {
         // table becomes either the user defined table name or the model classes class name.
-        $table = static::$table ?? strtolower(static::class);
+        $table = static::$table !== '' ? static::$table : strtolower(static::class);
 
         $builder = new QueryBuilder($table, static::class);
         return $builder->where($col, $value, $operator);
@@ -109,7 +109,7 @@ class Model
     public static function all(): array|null
     {
         // table becomes either the user defined table name or the model classes class name.
-        $table = static::$table ?? strtolower(static::class);
+        $table = static::$table !== '' ? static::$table : strtolower(static::class);
 
         // sql query.
         $sql = "SELECT * FROM $table";
@@ -151,7 +151,7 @@ class Model
     public static function find(int $id): object|null
     {
         // table becomes either the user defined table name or the model classes class name.
-        $table = static::$table ?? strtolower(static::class);
+        $table = static::$table !== '' ? static::$table : strtolower(static::class);
 
         // sql query.
         $sql = "SELECT * FROM $table WHERE id = :id";
